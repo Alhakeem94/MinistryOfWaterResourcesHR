@@ -1,0 +1,649 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore;
+@using homework.Data;
+@using homework.Model.MainClass;
+@using homework.backEnd.Interfaces.MainInterface;
+@inject IJSRuntime _js
+@inject IWebHostEnvironment _env
+@inject IEmploye _Emp
+
+@inject ApplicationDbContext _dbContext 
+
+
+<div style="border:solid;border-color:lightblue;padding:10px;border-radius:15px; font-family:'Times New Roman'; font-size:15px; color:darkblue;" >
+
+    
+    
+    <EditForm OnInvalidSubmit="SaveData" style="padding:10px;background-color:lightblue;" dir="rtl" Model="EmployData">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الاسم الاول</label>
+                <input @bind-value="EmployData.FirstName" type="text" placeholder="الاسم الاول" class="form-control" />
+            </div>
+            <div class="col">
+                <label>الاسم الثاني</label>
+                <input @bind-value="EmployData.SecondName"  type="number" placeholder="الاسم الثاني" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الاسم الثالث</label>
+                <input @bind-value="EmployData.ThirdName" type="text" placeholder="الاسم الثالث"class="form-control" />
+            </div>
+            
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الاسم الرابع</label>
+                <input @bind-value="EmployData.FourthName" type="text" placeholder="الاسم الرابع" class="form-control" />
+            </div>
+            <div class="col">
+                <label>العنوان الوظيفي</label>
+                <input @bind-value="EmployData.JobTitle" type="text" placeholder="العنوان الوظيفي" class="form-control" />
+            </div>
+            <div class="col">
+                   <label>اللقب</label>
+                    <input @bind-value="EmployData.Title" type="text" placeholder="اللقب" class="form-control" />
+             </div>
+
+        </div>
+        <br />
+   
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>صورةالموظف </label>
+                <InputFile accept=".png,.jpg,.jpeg" class="form-control  " OnChange="CheckFile" />
+
+            </div>
+            <div class="col">
+                <label>الرقم المدني</label>
+                <input @bind-value="EmployData.EmpCivilNum" type="number" placeholder="الرقم المدني" class="form-control" />
+            </div>
+            <div class="col">
+                <label>المنصب</label>
+                <input @bind-value="EmployData.EmpPosition" type="text"placeholder="المنصب" class="form-control"/>
+
+            </div>
+        </div>
+        <br />
+
+     
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">     
+            <div class="col">
+                <label>تأريخ إستلامه المنصب</label>
+                <input @bind-value="EmployData.PositionStartDate" type="date" placeholder="تأريخ إستلامه المنصب" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم أمر المنصب</label>
+                <input @bind-value="EmployData.PositionOrderNum" type="number" placeholder="رقم أمر المنصب " class="form-control" />
+            </div>
+
+                <div class="col">
+                    <label>الدائرة</label>
+    
+                    <select class="form-control" @onchange="FilteredDeptdata">
+                        <option>أسم الدائرة</option>
+                        @foreach (var item in ListOfOffices)
+                        {
+                            <option value="@item.Id">@item.OfficeName</option>
+                        }
+                    </select>
+
+                </div>  
+           
+        </div>
+       <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label> القسم</label>
+                <select @bind="EmployData.Department" class="form-control">
+                    <option>أسم القسم</option>
+                    @foreach (var item in ListOfFilteredDepts)
+                    {
+                        <option value="@item.Id">@item.DepartmentName</option>
+                    }
+                </select>
+
+            </div>
+            <div class="col">
+                <label>الموقع الجغرافي للعمل</label>
+                <input @bind-value="EmployData.GeoLocation" type="text" placeholder="الموقع الجغرافي للعمل" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>طبيعة المهنة</label>
+                <input @bind-value="EmployData.CareerType" type="text" placeholder="طبيعة المهنة" class="form-control" />
+            </div>
+
+        </div>
+        <br />
+
+      
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الرقم الوظيفي</label>
+                <input @bind-value="EmployData.EmpNumber" type="number" placeholder="الرقم الوظيفي" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الدرجة الوظيفية</label>
+                <input @bind-value="EmployData.JobDegree" type="number"placeholder="الدرجةالوظيفية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>المرتبة</label>
+                <input @bind-value="EmployData.JobDegreeSection" type="text" placeholder="المرتبة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>تأريخ التعيين</label>
+                <input @bind-value="EmployData.JobHiretDate" type="date" placeholder="تأريخ التعيين" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ المباشرة</label>
+                <input @bind-value="EmployData.JobStartDate" type="date" placeholder="تأريخ المباشرة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم أمر المباشرة</label>
+                <input @bind-value="EmployData.DirectOrderNum" type="number" placeholder="رقم أمر المباشرة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>تأريخ أمر المباشرة</label>
+                <input @bind-value="EmployData.DirectDate" type="date" placeholder="تأريخ أمر المباشرة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ إستحقاق العلاوة</label>
+                <input @bind-value="EmployData.BounsDeserveDate" type="date" placeholder="تأريخ إستحقاق العلاوة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الخدمة المضافة بالسنة</label>
+                <input @bind-value="EmployData.ServiceAddedPerYear" type="number" placeholder="الخدمة المضافة بالشهر" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الخدمة المضافة بالشهر</label>
+                <input @bind-value="EmployData.ServiceAddedPerMonth" type="number" placeholder="الخدمة المضافة بالشهر" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الخدمة المضافة باليوم</label>
+                <input @bind-value="EmployData.ServiceAddedPerDay" type="number" placeholder="الخدمة المضافة باليوم" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الخدمة المضافة بالسنة</label>
+                <input @bind-value="EmployData.ServiceAddedPerYear" type="number" placeholder="الخدمة المضافةبالسنة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الخدمة المحذوفة بالسنة</label>
+                <input @bind-value="EmployData.ServiceAddedPerYear" type="number" placeholder="الخدمة المحذوفة بالسنة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الخدمة المحذوفة بالشهر</label>
+                <input @bind-value="EmployData.ServiceDeletedPerMonth" type="number" placeholder="الخدمة المحذوفة بالشهر" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الخدمة المحذوفة باليوم</label>
+
+                <input @bind-value="EmployData.ServiceDeletedPerDay" type="number" placeholder="الخدمة المحذوفة باليوم" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>ملاحظات الخدمة</label>
+                <input @bind-value="EmployData.ServiceNotes" type="text" placeholder="ملاحظات الخدمة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الحالة الوظيفية</label>
+                <input @bind-value="EmployData.EmpState" type="text" placeholder="الحالة الوظيفية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الموقف الإداري</label>
+                <input @bind-value="EmployData.AdministrativePosition" type="text" placeholder="الموقف الإداري" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>رقم أمر الحالة الوظيفية</label>
+                <input @bind-value="EmployData.EmploymentStatusOrderNumber" type="number" placeholder="رقم أمر الحالة الوظيفية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ أمر الحالة الوظيفية</label>
+                <input @bind-value="EmployData.EmploymentStatusOrderDate" type="date" placeholder="تأريخ أمر الحالة الوظيفية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ الإنفكاك</label>
+                <input @bind-value="EmployData.BreakupDate" type="date" placeholder="تأريخ الإنفكاك" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الدائرة المكلف منها</label>
+                <input @bind-value="EmployData.OfficeAssignedTo" type="text" placeholder="الدائرة المكلف منها" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الشهادة الحالية</label>
+                <input @bind-value="EmployData.CurrentCertificate" type="text" placeholder="الشهادة الحالية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>التخصص</label>
+                <input @bind-value="EmployData.EmpSpecialization" type="text" placeholder="التخصص" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>سنة التخرج</label>
+                <input @bind-value="EmployData.GraduationYear" type="date" placeholder="سنة التخرج" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الجامعة والكلية</label>
+                <input @bind-value="EmployData.EmpCollage" type="text" placeholder="الجامعة والكلية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>المحافظة</label>
+                <input @bind-value="EmployData.EmpGovernorate" type="text" placeholder="المحافظة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الحي</label>
+                <input @bind-value="EmployData.EmpDistrict" type="text" placeholder="الحي" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الزقاق</label>
+                <input @bind-value="EmployData.EmpAlley" type="number" placeholder="الزقاق" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>المحلة</label>
+                <input @bind-value="EmployData.Emplocality" type="number" placeholder="المحلة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>رقم الدار</label>
+                <input @bind-value="EmployData.HouseNumber" type="number" placeholder="رقم الدار" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم الهاتف</label>
+                <input @bind-value="EmployData.PhoneNumber" type="number" placeholder="رقم الهاتف" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>حالة السكن</label>
+                <select @bind="EmployData.HousingState" class="form-control">
+                    <option>ملك</option>
+                    <option>أيجار</option>
+                </select>
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>نوع السكن</label>
+                <input @bind-value="EmployData.HouseType" type="text" placeholder="نوع السكن" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الجنس</label>
+                <select @bind="EmployData.EmpGender" class="form-control">
+                   <option>ذكر</option>
+                    <option>أنثى</option>
+               </select>
+
+            </div>
+            <div class="col">
+                <label>محل الولادة</label>
+                <input @bind-value="EmployData.BirthPlace" type="text" placeholder="محل الولادة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>تأريخ الولادة</label>
+                <input @bind-value="EmployData.BirthDate" type="date" placeholder="تأريخ الولادة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>القومية</label>
+                <select @bind="EmployData.EmpNationalism" class="form-control">
+                    <option>عربي</option>
+                    <option>كردي</option>
+                    <option>تركماني</option>
+                </select>
+
+            </div>
+            <div class="col">
+                <label>الديانة</label>
+                <input @bind-value="EmployData.EmpReligion" type="text" placeholder="الديانة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>الجنسية</label>
+                <input @bind-value="EmployData.EmpNationality" type="text" placeholder="الجنسية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الحالة الزوجية</label>
+                <select @bind="EmployData.MaritalStatus" class="form-control">
+                    <option>متزوج</option>
+                    <option>أعزب</option>
+                    <option>مطلق</option>
+                    <option>أرمل</option>
+                </select>
+
+            </div>
+            <div class="col">
+                <label>إسم الزوجة أو الزوج إن وجد</label>
+                <input @bind-value="EmployData.WifeHusbandName" type="text" placeholder="إسم الزوجة أو الزوج إن وجد" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>جنسية الزوجة أو الزوج</label>
+                <input @bind-value="EmployData.WifeHusbandNationality" type="text" placeholder="جنسية الزوجة أو الزوج" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>عدد الأطفال</label>
+                <select @bind="EmployData.NumOfKids" class="form-control">
+                    <option>لايوجد</option>
+                    <option>واحد</option>
+                    <option>أثنان</option>
+                    <option>ثلاثة</option>
+                    <option>اربعة</option>
+                    <option>خمسةفمافوق</option>
+                    
+                </select>
+
+            </div>
+            <div class="col">
+                <label>مهنة/الزوج/الزوجة</label>
+                <select @bind="EmployData.WifeHusbandCarrer" class="form-control">
+                    <option>موظف</option>
+                    <option>موظفه</option>
+                    <option>كاسب</option>
+                    <option>ربة بيت</option>
+
+                </select>
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>إسم الأم</label>
+                <input @bind-value="EmployData.MotherName" type="text" placeholder="إسم الأم" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم شهادة الجنسية</label>
+                <input @bind-value="EmployData.NationalityCertificateNumber" type="number" placeholder="رقم شهادة الجنسية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ شهادة الجنسية</label>
+                <input @bind-value="EmployData.CitizenshipCertificateDate" type="date" placeholder="تأريخ شهادة الجنسية" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>رقم هوية الأحوال المدنية</label>
+                <input @bind-value="EmployData.CivilStatusIdentificationNumber" type="number" placeholder="رقم هوية الأحوال المدنية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ أصدار الأحوال المدنية</label>
+                <input @bind-value="EmployData.CitizenshipCertificateIssueDate" type="date" placeholder="تأريخ أصدار الأحوال المدنية" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم البطاقة الوطنية الموحدة</label>
+                <input @bind-value="EmployData.UnifiedNationalCardNumber" type="number" placeholder="رقم البطاقة الوطنية الموحدة" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>تأريخ إصدار البطاقة الوطنية الموحدة</label>
+                <input @bind-value="EmployData.UnifiedIssueDate" type="date" placeholder="تأريخ إصدار البطاقة الوطنية الموحدة" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>جهة الإصدار</label>
+                <input @bind-value="EmployData.Issuer" type="text" placeholder="جهة الإصدار" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>رقم البطاقة التموينية</label>
+                <input @bind-value="EmployData.RationCardNumber" type="number" placeholder="رقم البطاقة التموينية" class="form-control" />
+
+            </div>
+
+        </div>
+        <br />
+
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-1">
+            <div class="col">
+                <label>إسم المركز التمويني</label>
+                <input @bind-value="EmployData.FoodNameCenter" type="text" placeholder="إسم المركز التمويني" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>الملاحظات</label>
+                <input @bind-value="EmployData.EmpNotes" type="text" placeholder="الملاحظات" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>تأريخ التحديث</label>
+                <input @bind-value="EmployData.LastUpdate" type="date" placeholder="تأريخ التحديث" class="form-control" />
+
+            </div>
+            <div class="col">
+                <label>أسم المستخدم</label>
+                <input @bind-value="EmployData.UserName" type="text" placeholder="أسم المستخدم" class="form-control" />
+
+            </div>
+
+        </div>
+
+        <br />
+
+        <button class="btn btn-primary form-control">حفظ المعلومات</button>
+    </EditForm>
+
+
+</div>
+
+@code{
+
+    public List<OfficeModel> ListOfOffices { get; set; } =new List<OfficeModel>();
+    public List<DepartmentModel> ListOfDepts { get; set; } = new List<DepartmentModel>();
+    public EmployeModel EmployData { get; set; } = new EmployeModel();
+    public List<DepartmentModel> ListOfFilteredDepts { get; set; } = new List<DepartmentModel>();
+
+    public InputFileChangeEventArgs UplaodedUserImage { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListOfOffices = await _dbContext.OfficeTable.ToListAsync();
+        ListOfDepts = await _dbContext.DeparmentTable.ToListAsync();
+        EmployData.JobHiretDate = DateTime.Now;   // تم أستخدام هذه لغرض جعل حقل تاريخ التعيين ياخذ تاريخ اليوم
+
+    }
+
+
+   
+
+    private void FilteredDeptdata(ChangeEventArgs args)
+    {
+        var Id = int.Parse(args.Value.ToString());
+
+        ListOfFilteredDepts = ListOfDepts.Where(a => a.OfficeTableId == Id).ToList();
+    }
+           private async Task SaveData()
+          {
+              var UserResponse = await _js.InvokeAsync<bool>("confirm", "Are you sure to add the User");
+              if (UserResponse)
+               {
+                  var CheckUserExists = await _Emp.CheckIfUserExistsInDB(EmployData.EmpNumber);
+                if (CheckUserExists is true)
+                 {
+                   await _js.InvokeVoidAsync("alert", $"The Emp : {EmployData.FirstName} Already Exists it the system");
+                 }
+            else
+            {
+                EmployData.EmpPicture = await UploadUserImageToFileSystem();
+                var BackEndResponse = await _Emp.AddEmploye(EmployData);
+
+                await _js.InvokeVoidAsync("alert", BackEndResponse);
+                EmployData = new EmployeModel();   // هذه تعتبر object جديد يستخدم لغرض تصفير الفورم
+
+            }
+             }
+           }
+
+
+    private async Task CheckFile(InputFileChangeEventArgs UploadedFile)
+    {
+
+        if (UploadedFile.File.ContentType == "image/png" || UploadedFile.File.ContentType == "image/jpeg" || (UploadedFile.File.ContentType == "image/jpg" || UploadedFile.File.ContentType == "image/jpeg")) 
+        {
+           
+                if (UploadedFile.File.Size > 2000000)
+                {
+                    await _js.InvokeVoidAsync("alert", "Image Size larger than 2 MB please upload an image less that 2MB");
+                }
+                else
+                {
+                    await _js.InvokeVoidAsync("alert", "Everything Looks Good");
+                    UplaodedUserImage = UploadedFile;
+                }
+        }
+        else
+        {
+            await _js.InvokeVoidAsync("alert", "Please Upload png or jpeg Image File");
+            return;
+        }
+        
+    }
+    private async Task<string> UploadUserImageToFileSystem()
+    {
+
+        var FileName = EmployData.EmpNumber + "_" + Guid.NewGuid().ToString() + $"{UplaodedUserImage.File.Name}";
+       
+        var FolderPath = $"{_env.WebRootPath}\\UserImages";
+       
+        var FullPath = Path.Combine(FolderPath, FileName);
+
+        var MemoryStream = new MemoryStream();
+        await UplaodedUserImage.File.OpenReadStream(2000000).CopyToAsync(MemoryStream);
+
+
+        
+        await using (var fs = new FileStream(FullPath, FileMode.Create, FileAccess.Write))
+        {
+            MemoryStream.WriteTo(fs);
+        }
+
+        return FullPath;
+    }
+
+}
+
+  

@@ -1,0 +1,66 @@
+﻿@page "/addnewdep"
+@using homework.Model.MainClass;
+@using homework.backEnd.Interfaces.MainInterface;
+
+
+@inject IOffice _OfficeModel
+@inject IDepartment _Department
+@inject IJSRuntime _js
+
+<form @onsubmit="savedept" style="padding:15px;border:solid;border-radius:15px;background-color:lightblue;border-color:lightblue;">
+
+
+         <div class="row">
+           <div class="col">
+            <select class="form-control" @bind="newDept.OfficeTableId">
+                <option>اختر قسم</option>
+                      @foreach (var item in listofalloffice)
+                       {
+                        <option value="@item.Id">@item.OfficeName</option>
+                       }
+             </select>
+
+           </div>
+           <div class="col">
+            <input @bind="newDept.DepartmentName" type="text" placeholder="أدخل أسم القسم " class="form-control" />
+
+           </div>
+           <div class="col">
+            <button class="btn btn-primary form-control " type="submit">Seve Department </button>
+           </div>
+         </div>
+</form>
+
+
+
+
+@code{
+    public List<OfficeModel> listofalloffice { get; set; } = new List<OfficeModel>();
+    public DepartmentModel newDept { get; set; } = new DepartmentModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        listofalloffice = await _OfficeModel.GetAllOffices();
+    }
+
+    private async Task savedept()
+
+
+
+    {
+        var UserResponse = await _js.InvokeAsync<bool>("confirm", "are you sure to add the dept ?");
+
+        if (UserResponse is true)
+        {
+            var backEndResponse = await _Department.AddNewDepartment(newDept);
+            await _js.InvokeVoidAsync("alert", backEndResponse);
+            
+        }
+        
+        else
+        {
+            return;
+        }
+    }
+}
+ 

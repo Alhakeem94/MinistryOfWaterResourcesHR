@@ -1,0 +1,27 @@
+﻿@page "/addoffice"
+
+@using homework.Model.MainClass;
+@using homework.backEnd.Interfaces.MainInterface;
+
+@inject IOffice _OfficeModel
+@inject IJSRuntime _JS
+
+<form @onsubmit="Addnewofficetodb"style="border:solid;border-radius:15px;border-color:lightblue;background-color:lightblue;padding:15px;">
+    <input @bind="NewOffice.OfficeName" type="text" placeholder="أدخل أسم الدائرة" required class="form-control" />
+<br>
+   <button type="submit" class="btn btn-primary form-control"> Save </button>
+</form>
+
+
+
+@code{
+    public OfficeModel NewOffice { get; set; } = new OfficeModel();
+
+
+    private async Task Addnewofficetodb()
+    {
+        var MessageFromRepo = await _OfficeModel.AddOffice(NewOffice);
+        await _JS.InvokeVoidAsync("alert",MessageFromRepo);
+    }
+
+}
